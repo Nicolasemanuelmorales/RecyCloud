@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/head :: baseHead(~{::title}, ~{::link}, ~{::script})">
+    <meta charset="UTF-8">
+    <title>RecyCloud ♻️</title>
+
+    <link th:href="@{/lumino/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/lumino/css/datepicker3.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+
+    <!--Custom Font-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <script th:src="@{/lumino/js/html5shiv.js}"></script>
+    <script th:src="@{/lumino/js/respond.min.js}"></script>
+    <![endif]-->
+</head>
+<body>
+<header th:replace="fragments/header"></header>
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-4 col-12 my-md-5 my-3">
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action active" id="perfil" onclick="perfil()">Mis datos</a>
+                <a href="#" class="list-group-item list-group-item-action" id="datos" onclick="datos()">Actualizar datos</a>
+                <a href="#" class="list-group-item list-group-item-action" id="password" onclick="passw()" th:if="${session.usuario.identificacion}==0">Cambiar contraseña</a>
+            <span th:if="${session.estado} == null">
+                <a href="#" th:if="${session.usuario.rol} != 3" class="list-group-item list-group-item-action" id="puntos" onclick="puntos()">Ser punto de reciclaje</a>
+            </span>
+            <span th:if="${session.estado} != null">
+                <a href="#" th:if="${session.usuario.rol} != 3 and ${session.estado.estado} == 0" class="list-group-item list-group-item-action" id="puntos2" onclick="puntos()">Ser punto de reciclaje</a>
+            </span>
+                <a href="#" th:if="${session.usuario.rol} == 3" class="list-group-item list-group-item-action" id="estadisticas" onclick="estadistica()">Estadísticas</a>
+            </div>
+
+            <div class="alert alert-success text-center mt-2" role="alert" th:if="${session.usuario.rol} == 3">
+                ¡Ya sos un punto de reciclaje!
+            </div>
+            <div th:if="${session.estado} != null">
+                <div class="alert alert-warning text-center mt-2" role="alert" th:if="${session.estado.estado} == 1">
+                    Tu solicitud está siendo evaluada
+                </div>
+
+                <div class="alert alert-danger text-center mt-2" role="alert" th:if="${session.estado.estado} == 0">
+                    Sus imágenes fueron rechazadas, por favor, inténtelo nuevamente
+                </div>
+            </div>
+
+        </div>
+        <div class="col-12 col-md-8">
+            <div class="card card-signin col-12 my-md-5 my-3">
+                <div class="card-body">
+                    <div id="div_perfil" class="col-12 float-left mb-4">
+                        <div class="col-md-6 col-12 float-left pt-3">
+                            <h3 th:text="${session.usuario.nombre + ' ' + session.usuario.apellido}"} class="text-center negrita"></h3>
+                            <h4 th:text="${session.usuario.email}" class="text-center"></h4>
+                            <span th:if="${session.usuario.dia} != null">
+                                <h4 th:text="${session.usuario.dia + ' de ' + session.usuario.mes + ' del ' + session.usuario.anio}" class="text-center"></h4>
+                            </span>
+                            <span th:if="${session.usuario.telefono} != null">
+                                <h4 th:text="${session.usuario.telefono}" class="text-center"></h4>
+                            </span>
+                        </div>
+                        <div class="col-md-6 col-12 float-left">
+                            <form action="#" th:action="@{/home/cambiarImagenDePerfil}" th:object="${actualizar}" method="post" id="imagenPerfil" enctype="multipart/form-data">
+                                <span th:if="${session.usuario.nombreImagen} == null">
+                                    <img onclick="abrirFile()" id="imagg" src="../imagenes/perfil.png" alt="" class="foto-perfil rounded-circle">
+                                </span>
+                                <span th:if="${session.usuario.nombreImagen} != null">
+                                    <img onclick="abrirFile()" id="imagg" th:src="@{'/imagenesDePerfil/'+${session.usuario.nombreImagen}}" alt="" class="foto-perfil rounded-circle">
+                                </span>
+                                <span class="editar" id="editar1">
+                                    <img src="/imagenes/editar1.svg" alt="" class="" onclick="abrirFile()">
+                                </span>
+
+                                <input onchange="previewFile()" type="file" hidden name="avatarInput" id="avatarInput" />
+                                <button class="btn btn-sm text-uppercase botones-perfil apagado" id="botonImagenFile" type="submit">Guardar</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-container apagado col-12 float-left mt-2" id="panel">
+                        <div class="linea-divisoria-4"></div>
+                        <h3 class="card-title text-center mb-4" style="font-size: 30px;">Estadísticas</h3>
+                        <div class="row">
+                            <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                                <div class="panel panel-orange panel-widget border-right">
+                                    <div class="row no-padding"><em class="fa fa-xl fa-map-marker color-teal w100"></em>
+                                        <div class="large w100 my-3" th:if="${estadisticaspunto.eventosTotales != null}" th:text="${estadisticaspunto.eventosTotales}"></div>
+                                        <div class="text-muted w100">Eventos totales</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                                <div class="panel panel-red panel-widget ">
+                                    <div class="row no-padding"><em class="w100 fa fa-xl fa-check color-blue"></em>
+                                        <div class="large w100 my-3" th:if="${estadisticaspunto.eventosActivos != null}" th:text="${estadisticaspunto.eventosActivos}"></div>
+                                        <div class="text-muted w100">Eventos activos</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                                <div class="panel panel-teal panel-widget border-right">
+                                    <div class="row no-padding"><em class="w100 fa fa-xl fa-ban color-red"></em>
+                                        <div class="large w100 my-3" th:if="${estadisticaspunto.eventosInactivos != null}" th:text="${estadisticaspunto.eventosInactivos}"></div>
+                                        <div class="text-muted w100">Eventos inactivos</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6 col-md-3 col-lg-3 no-padding">
+                                <div class="panel panel-blue panel-widget border-right">
+                                    <div class="row no-padding"><em class="w100 fa fa-xl fa-user color-orange"></em>
+                                        <div class="large w100 my-3" th:if="${estadisticaspunto.pinesTotales != null}" th:text="${estadisticaspunto.pinesTotales}"></div>
+                                        <div class="text-muted w100" >Cantidad de pines</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div><!--/.row-->
+                    </div>
+
+
+                    <form action="#" th:action="@{/home/modificar}" th:object="${actualizar}" method="post" id="div_datos" class="col-12 float-left">
+                        <div class="linea-divisoria-4"></div>
+                        <h3 class="card-title text-center" style="font-size: 30px;">Actualizar datos</h3>
+                        <span th:if="${session.usuario.dia} == null and ${session.usuario.mes} == null and ${session.usuario.anio} == null">
+                            <div class="form-inline mt-3">
+                                <h5 class="w-100">Fecha de nacimiento</h5>
+                                <div class="form-label-group ajuste-fech mb-2 mb-md-0 ml-md-0 pl-md-0 col-md col-12">
+                                    <select class="form-control select"  id="daydropdown" name="dia" required>
+                                        <option disabled selected value="">Día</option>
+                                    </select>
+                                </div>
+                                <span class="text-danger"></span>
+                                <div class="form-label-group ajuste-fech mb-2 mb-md-0 col-md col-12">
+                                    <select class="form-control select" onchange="myFunction5()" id="monthdropdown" name="mes" required>
+                                        <option disabled selected value="">Mes</option>
+                                    </select>
+                                </div>
+                                <span class="text-danger"></span>
+                                <div class="form-label-group ajuste-fech mb-2 mb-md-0 mr-0 pr-md-0 col-md col-12">
+                                    <select class="form-control select" id="yeardropdown" name="anio" required>
+                                        <option disabled selected value="">Año</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </span>
+                        <span th:if="${session.usuario.dia} != null and ${session.usuario.mes} != null and ${session.usuario.anio} != null">
+                            <div class="form-inline mt-3">
+                                <h5 class="w-100">Fecha de nacimiento</h5>
+                                <div class="form-label-group ajuste-fech mb-2 mb-md-0 ml-md-0 pl-md-0 col-md col-12">
+                                    <select class="form-control select" id="daydropdown" name="dia">
+                                    </select>
+                                </div>
+                                <span class="text-danger"></span>
+                                <div class="form-label-group ajuste-fech mb-2 mb-md-0 col-md col-12">
+                                    <select class="form-control select" onchange="myFunction5()" id="monthdropdown" name="mes">
+                                    </select>
+                                </div>
+                                <span class="text-danger"></span>
+                                <div class="form-label-group ajuste-fech mb-2 mb-md-0 mr-0 pr-md-0 col-md col-12">
+                                    <select class="form-control select" id="yeardropdown" name="anio">
+                                    </select>
+                                </div>
+                            </div>
+                        </span>
+                        
+                        <span th:if="${session.usuario.dni} == null">
+                            <div class="form-label-group mt-md-3 mt-2">
+                                <input type="text" id="dni" name="dni" class="form-control" placeholder="DNI">
+                            </div>
+                        </span>
+                        <span th:if="${session.usuario.dni} != null">
+                            <div class="form-label-group mt-md-3 mt-2">
+                                <input type="text" name="dni" class="form-control" placeholder="DNI" th:value="${session.usuario.dni}">
+                            </div>
+                        </span>
+
+                        <div class="form-label-group mt-3">
+                           <div class="ajustar-cod float-left"><input type="text" id="cod" name="cod" class="form-control " placeholder="Ej: 011" required></div>
+                            <div class="float-right ajustar-tel"><input type="text" id="telefono" name="telefono" class="form-control " placeholder="Teléfono" required></div>
+                        </div>
+
+                        <button class="btn btn-sm btn-block text-uppercase botones-perfil" id="cambiar_datos" type="submit">Modificar datos</button>
+                    </form>
+
+                    <form action="#" th:action="@{/home/password}" th:object="${password}" method="post" id="div_password" class="col-12 float-left">
+                        <div class="linea-divisoria-4"></div>
+                        <h3 class="card-title text-center" style="font-size: 30px;">Cambiar contraseña</h3>
+                        <div class="form-label-group mt-3">
+                            <input type="password" id="old-password" name="oldPassword" class="form-control" placeholder="Contraseña actual" >
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <div class="form-label-group mt-3">
+                            <input type="password"  id="new-password" name="newPassword" class="form-control" placeholder="Nueva contraseña" >
+                            <span class="text-danger" ></span>
+                        </div>
+
+                        <div class="form-label-group mt-3">
+                            <input type="password" id="renew-password" name="reNewPassword" class="form-control" placeholder="Confirmar contraseña" >
+                            <span class="text-danger" ></span>
+                        </div>
+                        <button  class="btn btn-sm  btn-block text-uppercase botones-perfil" id="pass" type="submit">Cambiar contraseña</button>
+                    </form>
+
+                    <form name="uploadFiles" id="uploadFiles" th:action="@{/home/completar}" enctype="multipart/form-data" method="post" class="col-12 float-left">
+                        <div class="linea-divisoria-4"></div>
+                        <h3 class="card-title text-center mb-4">Ser punto de reciclaje</h3>
+                        <div class="alert alert-success" role="alert">
+                            Para poder crear puntos de reciclaje en nuestro mapa y eventos en el calendario usted deberá subir un total de tres fotos:
+                        </div>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12 col-md-6 float-left mb-2">
+                                    <div class="card">
+                                        <img src="/imagenes/dni.svg" class="dni" alt="DNI">
+                                        <div class="card-body">
+                                            <p class="card-text text-center p-0">Foto de su DNI (anverso y reverso)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 float-left mb-2">
+                                    <div class="card">
+                                        <img src="/imagenes/persona-dni.svg" class="dni" alt="Selfie">
+                                        <div class="card-body">
+                                            <p class="card-text text-center p-0">Selfie de su rostro junto al DNI</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-label-group mt-4">
+                            <label class="">Seleccionar imágenes<span class="text-danger">*</span></label>
+                            <input type="file" multiple="multiple" name="files" id="files" class="form-control-file" onchange="cambiar()">
+                        </div>
+                        <p class="alert alert-info d-none d-md-block mt-3"><span class="text-danger">*</span>Presione la tecla Ctrl para seleccionar más de una imagen</p>
+                        <p class="alert alert-info d-block d-md-none mt-3"><span class="text-danger">*</span>Mantenga presionado para seleccionar mas de una imagen</p>
+                        <button class="btn btn-sm  btn-block text-uppercase botones-perfil subir-img apagado"  id="punto-entrega" type="submit">Cargar imágenes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+
+
+
+<script>
+
+
+
+    function abrirFile() {
+        document.getElementById("avatarInput").click();
+    }
+    function previewFile() {
+        document.getElementById("botonImagenFile").classList.remove("apagado");
+        document.getElementById("botonImagenFile").classList.add("prendido");
+        document.getElementById("editar1").classList.remove("editar");
+        document.getElementById("editar1").classList.add("editar2");
+
+        const preview = document.querySelector('#imagg');
+        const file = document.querySelector('#avatarInput').files[0];
+        const reader = new FileReader();
+
+        reader.addEventListener("load", function () {
+            preview.src = reader.result;
+
+        }, false);
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+
+        function passw(){
+            document.getElementById("div_perfil").classList.remove("prendido");
+            document.getElementById("div_password").classList.add("prendido");
+            document.getElementById("div_datos").classList.remove("prendido");
+            document.getElementById("uploadFiles").classList.remove("prendido");
+            document.getElementById("panel").classList.remove("prendido");
+            document.getElementsByClassName("panel2").classList.remove("prendido");
+            $( "#password" ).addClass( "active" );
+            $( "#perfil" ).removeClass( "active" );
+            $( "#puntos" ).removeClass( "active" );
+            $( "#datos" ).removeClass( "active" );
+        };
+
+        function perfil(){
+            document.getElementById("div_perfil").classList.add("prendido");
+            document.getElementById("div_password").classList.remove("prendido");
+            document.getElementById("div_datos").classList.remove("prendido");
+            document.getElementById("uploadFiles").classList.remove("prendido");
+            document.getElementById("panel").classList.remove("prendido");
+            document.getElementsByClassName("panel2").classList.remove("prendido");
+            $( "#perfil" ).addClass( "active" );
+            $( "#password" ).removeClass( "active" );
+            $( "#puntos" ).removeClass( "active" );
+            $( "#datos" ).removeClass( "active" );
+        };
+
+        function datos(){
+            document.getElementById("div_perfil").classList.remove("prendido");
+            document.getElementById("div_password").classList.remove("prendido");
+            document.getElementById("div_datos").classList.add("prendido");
+            document.getElementById("uploadFiles").classList.remove("prendido");
+            document.getElementById("panel").classList.remove("prendido");
+            document.getElementsByClassName("panel2").classList.remove("prendido");
+            $( "#datos" ).addClass( "active" );
+            $( "#perfil" ).removeClass( "active" );
+            $( "#puntos" ).removeClass( "active" );
+            $( "#password" ).removeClass( "active" );
+        };
+
+        function puntos(){
+            document.getElementById("div_perfil").classList.remove("prendido");
+            document.getElementById("div_password").classList.remove("prendido");
+            document.getElementById("div_datos").classList.remove("prendido");
+            document.getElementById("uploadFiles").classList.add("prendido");
+            document.getElementById("panel").classList.remove("prendido");
+            document.getElementsByClassName("panel2").classList.remove("prendido");
+            $( "#puntos" ).addClass( "active" );
+            $( "#perfil" ).removeClass( "active" );
+            $( "#password" ).removeClass( "active" );
+            $( "#datos" ).removeClass( "active" );
+        };
+
+        function estadistica(){
+            document.getElementById("div_perfil").classList.remove("prendido");
+            document.getElementById("div_password").classList.remove("prendido");
+            document.getElementById("div_datos").classList.remove("prendido");
+            document.getElementById("uploadFiles").classList.remove("prendido");
+            document.getElementById("panel").classList.add("prendido");
+            document.getElementsByClassName("panel2").classList.add("prendido");
+            $( "#puntos" ).addClass( "active" );
+            $( "#perfil" ).removeClass( "active" );
+            $( "#password" ).removeClass( "active" );
+            $( "#datos" ).removeClass( "active" );
+        };
+
+        function cambiar() {
+            document.getElementById("punto-entrega").classList.remove("apagado");
+            document.getElementById("punto-entrega").classList.add("prendido");
+        }
+
+
+        var months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+
+        function daysInMonth(month, year) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        function populateDates(){
+
+            var today = new Date(),
+                day = today.getUTCDate(),
+                month = today.getUTCMonth(),
+                year = today.getUTCFullYear(),
+                daysInCurrMonth = daysInMonth(month, year);
+
+            // Year
+            var f = -1;
+            for(var i = 2020;  i >= 1900; i--){
+                f++;
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.text = i;
+                yeardropdown.appendChild(opt);
+                if((anioNaci + 1) == i){
+                    anioTraido = f;
+                }
+            }
+            myFunction3();
+
+            // Month
+            for(var i = 0; i < 12; i++){
+                var opt = document.createElement('option');
+                opt.value = months[i];
+                opt.text = months[i];
+                monthdropdown.appendChild(opt);
+
+                if(mesNaci === opt.text){
+                    mesTraido = i;
+                }
+            }
+            myFunction2();
+            // Day
+            for(var i = 0; i < daysInCurrMonth; i++){
+                var opt = document.createElement('option');
+                opt.value = i + 1;
+                opt.text = i + 1;
+                daydropdown.appendChild(opt);
+            }
+            myFunction();
+        }
+
+        var daydropdown = document.getElementById("daydropdown"),
+            monthdropdown = document.getElementById("monthdropdown"),
+            yeardropdown = document.getElementById("yeardropdown");
+
+
+
+        // Change handler for months
+        monthdropdown.onchange = function meses (){
+            var e = document.getElementById("daydropdown");
+            diaSeleccionado = Number(e.options[e.selectedIndex].value);
+
+            var newMonth = months.indexOf(monthdropdown.value) + 1,
+                newYear = yeardropdown.value;
+
+           var daysInCurrMonth = daysInMonth(newMonth, newYear);
+
+            daydropdown.innerHTML = "";
+            for(var i = 0; i < daysInCurrMonth; i++){
+                var opt = document.createElement('option');
+                opt.value = i + 1;
+                opt.text = i + 1;
+
+                daydropdown.appendChild(opt);
+            }
+            myFunction();
+            document.getElementById("daydropdown").selectedIndex = diaSeleccionado - 1;
+        }
+
+
+    var mesNaci= '[[${fecha.mes}]]';
+    var anioNaci= [[${fecha.anio}]] - 1;
+    var mesTraido;
+    var anioTraido;
+    var diaNaci= [[${fecha.dia}]] - 1;
+    var diaSeleccionado;
+    var codtel = '[[${fecha.telefono}]]';
+    var codigo;
+    var telefono;
+
+    function dividir(){
+        if (codtel != null){
+            var cualquierCadena = codtel.indexOf("(");
+            var cualquierCadena2 = codtel.indexOf(")");
+            codigo = codtel.substring(cualquierCadena+1,cualquierCadena2);
+            telefono = codtel.substring(cualquierCadena2+1);
+            document.getElementById("cod").placeholder="Ej: 011";
+            var input = document.getElementById("cod");
+            input.value = codigo;
+            document.getElementById("telefono").placeholder="Teléfono";
+            var input = document.getElementById("telefono");
+            input.value = telefono;
+        }
+    }
+
+    dividir();
+
+    daydropdown.onchange = function myFunction5(){
+        var e = document.getElementById("daydropdown");
+        diaSeleccionado = Number(e.options[e.selectedIndex].value);
+    }
+
+    function myFunction() {
+            if(diaNaci != -1){
+                document.getElementById("daydropdown").selectedIndex = diaNaci;
+            }else {
+                diaNaci='';
+            }
+        }
+    function myFunction2() {
+        if(mesNaci != -1){
+            document.getElementById("monthdropdown").selectedIndex = mesTraido;
+        }else {
+            mesNaci='';
+        }
+    }
+    function myFunction3() {
+        if(anioNaci != -1){
+            document.getElementById("yeardropdown").selectedIndex = anioTraido;
+        }else {
+            anioNaci=0;
+        }
+    }
+
+
+
+        populateDates();
+
+
+
+    var myVariable1= [[${estadisticas.usuariosTotalesRol1}]];
+    var myVariable2= [[${estadisticas.usuariosTotalesRol2}]];
+    var myVariable3= [[${estadisticas.usuariosTotalesRol3}]];
+
+    var pieData = [
+        {
+            value: myVariable3,
+            color: "#ffb53e",
+            highlight: "#fac878",
+            label: "Punto de reciclaje"
+        },
+        {
+            value: myVariable2,
+            color: "#1ebfae",
+            highlight: "#3cdfce",
+            label: "Genérico"
+        },
+        {
+            value: myVariable1,
+            color: "#f9243f",
+            highlight: "#f6495f",
+            label: "Administradores"
+        }
+
+    ];
+
+    window.onload = function () {
+        var chart1 = document.getElementById("line-chart").getContext("2d");
+        window.myLine = new Chart(chart1).Line(lineChartData, {
+            responsive: true,
+            scaleLineColor: "rgba(0,0,0,.2)",
+            scaleGridLineColor: "rgba(0,0,0,.05)",
+            scaleFontColor: "#c5c7cc"
+        });
+        var chart2 = document.getElementById("bar-chart").getContext("2d");
+        window.myBar = new Chart(chart2).Bar(barChartData, {
+            responsive: true,
+            scaleLineColor: "rgba(0,0,0,.2)",
+            scaleGridLineColor: "rgba(0,0,0,.05)",
+            scaleFontColor: "#c5c7cc"
+        });
+        var chart3 = document.getElementById("doughnut-chart").getContext("2d");
+        window.myDoughnut = new Chart(chart3).Doughnut(doughnutData, {
+            responsive: true,
+            segmentShowStroke: false
+        });
+        var chart4 = document.getElementById("pie-chart").getContext("2d");
+        window.myPie = new Chart(chart4).Pie(pieData, {
+            responsive: true,
+            segmentShowStroke: false
+        });
+
+    };
+</script>
+
+
+<footer th:replace="fragments/footer"></footer>
+</body>
+</html>
+

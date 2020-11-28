@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/head :: baseHead(~{::title}, ~{::link}, ~{::script})">
+    <meta charset="UTF-8">
+    <title>RecyCloud ♻️</title>
+    <link rel="stylesheet" th:href="@{/css/pages/map.css}">
+</head>
+<body>
+<header th:replace="fragments/header"></header>
+<div class="container my-5" id="beneficiarios" th:fragment="main()">
+    <div class="card card-signin my-5">
+        <div class="card-body">
+            <div class="container">
+                <div class="hidden" id="provider-id" th:attr="data-provider_id=${data.providerId}"></div>
+                <h2 class="text-center my-2 font-weight-bold color-verde col-12">Recypoints</h2>
+                <div class="row margin-3">
+                    <button type="button" class="btn btn-primary btn-recyp2"><a href="/punto-reciclaje/recypoints/create" class="blanco fw-600">Agregar Nuevo Beneficiario</a></button>
+                </div>
+                <div class="row">
+                    <h5 class="font-weight-bold color-verde mt-4">Beneficiarios</h5>
+                    <table class="table text-center">
+                        <thead>
+                        <tr>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Recy Points</th>
+                            <th scope="col">Añadir</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="recypoint : ${data.givenRecypoints}">
+                            <td class="fw-600" th:text="|${recypoint.beneficiary.nombre} ${recypoint.beneficiary.apellido}|"></td>
+                            <td class="fw-600" th:text="${recypoint.amount}" th:id="|amount-${recypoint.beneficiary.id}|"></td>
+                            <td>
+                                <button class="btn btn-primary" onclick="addPoint(this)"
+                                        th:attr="data-user_id=${recypoint.beneficiary.id}">
+                                    Añadir Puntos
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal fade" id="add-point-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title text-center col-12 my-2 font-weight-bold color-verde" id="exampleModalLongTitle">Añadir Puntos</h2>
+                            </div>
+                            <form>
+                                <form>
+                                    <div class="form-group">
+                                        <input type="number" class="form-control" id="point-input"
+                                               step="100" placeholder="Cantidad">
+                                    </div>
+                                </form>
+                            </form>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-save">
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer th:replace="fragments/footer"></footer>
+<script th:src="@{/js/lib/rest-client.js}"></script>
+<script th:src="@{/js/pages/puntoreciclaje/recypoints/modal.js}"></script>
+</body>
+</html>

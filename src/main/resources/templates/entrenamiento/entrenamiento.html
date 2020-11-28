@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/head :: baseHead(~{::title}, ~{::link}, ~{::script})">
+    <meta charset="UTF-8">
+    <title>RecyCloud ♻️</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header th:replace="fragments/header"></header>
+
+<div class="text-center" id="contenedorVideo"></div>
+<br>
+
+<div class="acomodar-contenedor container">
+    <div class="row justify-content-md-center">
+        <div class="col-md-8 text-center mt-2" >
+            <span class="resultado" id="result"></span>
+        </div>
+        <br><br>
+        <div class="col-md-8 text-center mt-2">
+            <input type="text" class="form-control" placeholder="Nombre" id="basura">
+        </div>
+        <br>
+    </div>
+    <div class="row justify-content-md-center my-3">
+        <div class=""></div>
+        <div class="col-md-2 text-center mt-2">
+            <button class="btn col-md-12 btn-primary" id="botonTapaDeBotella">Agregar
+                <span id="sumaDeImagenesTapaDeBotella">
+                    0
+                </span>
+            </button>
+        </div>
+        <br><br>
+        <div class="col-md-2 text-center mt-2">
+            <button class="btn  col-md-12 btn-primary" id="botonPredecir">Iniciar</button>
+        </div>
+        <br>
+        <div class="col-md-2 text-center mt-2">
+            <button class="btn  col-md-12 btn-primary" id="botonEntrenar">Entrenar</button>
+        </div>
+        <br>
+
+        <div class="col-md-2 text-center mt-2">
+            <button type="submit" class="btn col-md-12 btn-primary" id="botonGuardar" value="GUARDARRR">Guardar</button>
+        </div>
+
+        <div class="col-md-2 text-center mt-2">
+            <input type="file"class="btn col-md-12 btn-primary" id="cargar" multiple />
+        </div>
+    </div>
+</div>
+<script>
+    let video;
+    let featureExtractor;
+    let clasificador;
+    let tapaDeBotellaImagenes = 0;
+    let basuraAux='';
+    let basura='';
+    function whileTraining(loss) {
+        if (loss == null) {
+            console.log('Training Complete');
+        } else {
+            console.log(loss);
+        }
+    }
+    function modelReady() {
+        console.log()
+    }
+    function setup() {
+        noCanvas();
+        video = createCapture(VIDEO);
+        video.parent('contenedorVideo');
+        featureExtractor = ml5.featureExtractor('MobileNet',modelReady);
+        clasificador = featureExtractor.classification(video, { numLabels: 5 });
+        configuraBotones();
+    }
+
+    function configuraBotones() {
+        botonB = select('#botonTapaDeBotella');
+        botonB.mousePressed(function () {
+            basura =  document.getElementById("basura").value;
+            if(basuraAux == ''){
+                select('#sumaDeImagenesTapaDeBotella').html(tapaDeBotellaImagenes++);
+                basuraAux=document.getElementById("basura").value;
+                clasificador.addImage(basura);
+            }
+            else if(basuraAux != basura){
+                select('#sumaDeImagenesTapaDeBotella').html(tapaDeBotellaImagenes=0);
+                basuraAux=document.getElementById("basura").value;
+            }
+            else if(basura == basuraAux) {
+                select('#sumaDeImagenesTapaDeBotella').html(tapaDeBotellaImagenes++);
+                basuraAux=document.getElementById("basura").value;
+                clasificador.addImage(basura);
+            }
+        });
+        botonPredecir = select('#botonPredecir');
+        botonPredecir.mousePressed(function () {
+            clasificador.classify(muestraResultado);
+        });
+
+        botonEntrenar = select('#botonEntrenar');
+        botonEntrenar.mousePressed(function () {
+            clasificador.train(whileTraining);
+        });
+
+        let botonGuardar = select('#botonGuardar');
+        botonGuardar.mousePressed(function () {
+            clasificador.save('modelo');
+        });
+
+        loadBtn = select('#cargar');
+        loadBtn.changed(function() {
+            classifier.load(loadBtn.elt.files);
+        });
+    }
+
+    function muestraResultado(err, res) {
+        clasificador.classify(muestraResultado);
+        if (res[0].confidence > 0.75) {
+            select("#result").html(res[0].label);
+        }
+    }
+</script>
+<footer th:replace="fragments/footer"></footer>
+</body>
+</html>

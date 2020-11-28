@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/head :: baseHead(~{::title}, ~{::link}, ~{::script})">
+    <meta charset="UTF-8">
+    <title>RecyCloud ♻️</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header th:replace="fragments/header"></header>
+
+<main>
+    <section id="banner" class="degradado pt-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-12 descripcion mt-5">
+                    <h1 class="mt-5 mb-3 blanco"><span class="fw-600">Reciclá</span><span> y ayudá a cuidar nuestro planeta</span></h1>
+                    <p class="fw-600 blanco"> Para recibir todas las novedades de RecyCloud dejanos tu E-mail</p>
+                    <form action="#" th:action="@{/home/suscribirse}" th:object="${suscriptores}" method="post" >
+                        <div class="form-group">
+                            <input th:field="*{email}" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Ingrese su Email">
+                        </div>
+                        <div class="text-danger textoError mb-3" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        <button type="submit" class="btn btn-primary">Suscribirse</button>
+                    </form>
+                </div>
+                <div class="col-md-6 col-12">
+                    <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img class="d-block w-100" src="/imagenes/banner3.png" alt="First slide">
+                            </div>
+                            <div class="carousel-item">
+                                <img class="d-block w-100" src="/imagenes/banner2.png" alt="Second slide">
+                            </div>
+                            <div class="carousel-item">
+                                <img class="d-block w-100" src="/imagenes/banner1.png" alt="Third slide">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="quienes-somos">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-8 offset-md-2">
+                    <div class="col-md-5 col-12 float-left">
+                        <img src="/imagenes/mundo.png" alt="Planeta Tierra">
+                    </div>
+                    <div class="col-md-7 col-12 float-left mt-md-4">
+                        <h3 class="mb-3">¿QUIENES SOMOS?</h3>
+                        <p>Somos un equipo de desarrollo que trabaja promoviendo una correcta gestión de residuos mediante: identificación de productos utilizando inteligencia artificial, información del producto y localización de centros de reciclaje.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="servicios degradado">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="text-center mb-5">SERVICIOS</h3>
+                </div>
+                <div class="card float-left" style="width: 18rem;">
+                    <a href="/scanner/scanner">
+                    <img class="card-img-top iconos-servicios" src="/imagenes/scanner.svg" alt="Card image cap">
+                    <div class="card-body">
+                        <h4 class="card-title">Scanner</h4>
+                        <p class="card-text text-center">Sacá o cargá una foto del producto que quieras reciclar para recibir información del mismo.</p>
+                    </div>
+                </a>
+                </div>
+
+                <div class="card float-left" style="width: 18rem;">
+                    <a href="/map">
+                        <img class="card-img-top iconos-servicios" src="/imagenes/mapa.svg" alt="Card image cap">
+                        <div class="card-body">
+                            <h4 class="card-title">Mapa</h4>
+                            <p class="card-text text-center">Buscá en el mapa los puntos mas cercanos para poder llevar tus productos reciclables.</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div  th:if="${session.usuario} == null" class="card float-left" style="width: 18rem;">
+                    <a target="_blank" href="http://www.recycommerce.local/index.php?route=common/home">
+                        <img class="card-img-top iconos-servicios" src="/imagenes/tienda.svg" alt="Card image cap">
+                        <div class="card-body">
+                            <h4 class="card-title">Tienda</h4>
+                            <p class="card-text text-center">Utilizá la tienda para comprar o vender tus productos reciclados.</p>
+                        </div>
+                    </a>
+                </div>
+                <div  th:if="${session.usuario} != null" class="card float-left" style="width: 18rem;">
+                    <a target="_blank" href="/recycommerce/login">
+                        <img class="card-img-top iconos-servicios" src="/imagenes/tienda.svg" alt="Card image cap">
+                        <div class="card-body">
+                            <h4 class="card-title">Tienda</h4>
+                            <p class="card-text text-center">Utilizá la tienda para comprar o vender tus productos reciclados.</p>
+                        </div>
+                    </a>
+                </div>
+
+
+                <div class="card float-left" style="width: 18rem;">
+                    <a href="/eventos">
+                    <img class="card-img-top iconos-servicios" src="/imagenes/calendario.svg" alt="Card image cap">
+                    <div class="card-body">
+                        <h4 class="card-title">Eventos</h4>
+                        <p class="card-text text-center">Mirá los próximos eventos de recolección o de charlas informativas.</p>
+                    </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</main>
+<footer th:replace="fragments/footer"></footer>
+</body>
+</html>

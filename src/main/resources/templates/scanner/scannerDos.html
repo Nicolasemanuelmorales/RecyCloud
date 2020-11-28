@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/head :: baseHead(~{::title}, ~{::link}, ~{::script})">
+    <meta charset="UTF-8">
+    <title>RecyCloud ♻️</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+
+<header th:replace="fragments/header"></header>
+
+<div class="container">
+    <div class="row">
+        <div class="contenedor-ocultar">
+            <p class="ocultar-pasos color-naranja" data-toggle="tooltip" data-placement="top" title="Ocultar RecyPoints">▲</p>
+            <p class="mostrar-pasos color-naranja" data-toggle="tooltip" data-placement="top" title="Mostrar RecyPoints">▼</p>
+        </div>
+    </div>
+</div>
+<section class="info-scan pt-4 ocultar-recy">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center my-3 font-weight-bold color-verde">Cómo utilizar el scanner</h2>
+            </div>
+            <div class="col-12 col-md-3 float-left">
+                <div class="card my-4 py-1">
+                    <img class="card-img-top card-scanner-img" src="/imagenes/scanner.svg" alt="Card image cap">
+                    <div class="card-body">
+                        <p class="card-text text-center mb-4">Seleccionar la manera para scanner la imagen</p>
+                        <p class="card-text text-center mb-0"><span class="font-weight-bold color-verde">En tiempo real</span></p>
+                        <p class="card-text text-center mb-4">Utilice su cámara o webcam.</p>
+                        <p class="card-text text-center mb-0"><span class="font-weight-bold color-verde">Adjuntar imagen</span></p>
+                        <p class="card-text text-center mb-4">Seleccione una foto de su galería.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md col-12 float-left my-auto">
+                <img src="/imagenes/flecha.svg" alt="flecha" class="flechas d-none d-md-block">
+                <img src="/imagenes/flecha2.svg" alt="flecha" class="flechas2 d-block d-md-none">
+            </div>
+            <div class="col-12 col-md-3 float-left">
+                <div class="card my-4 py-1">
+                    <img class="card-img-top card-scanner-img" src="/imagenes/iniciar2.svg" alt="Card image cap">
+                    <div class="card-body">
+                        <p class="card-text text-center mb-5">Una vez enfocado el objeto o seleccionado la imagen utilice el botón "iniciar"</p>
+                        <p class="card-text text-center font-weight-bold color-verde mb-4">¡Usted ya tendrá la categoría del producto que escaneó!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md col-12 float-left my-auto">
+                <img src="/imagenes/flecha.svg" alt="flecha" class="flechas d-none d-md-block">
+                <img src="/imagenes/flecha2.svg" alt="flecha" class="flechas2 d-block d-md-none">
+            </div>
+            <div class="col-12 col-md-3 float-left">
+                <div class="card my-4 py-1">
+                    <img class="card-img-top card-scanner-img" src="/imagenes/mapa.svg" alt="Card image cap">
+                    <div class="card-body">
+                        <p class="card-text text-center">Una vez visto el resultado podrá obtener:</p>
+                        <p class="card-text text-center mb-0"><span class="font-weight-bold color-verde">Más información</span></p>
+                        <p class="card-text text-center">Lo llevará a la información de la categoría resultante del scanner.</p>
+                        <p class="card-text text-center mb-0"><span class="font-weight-bold color-verde">Ver mapa</span></p>
+                        <p class="card-text text-center">Lo llevará al mapa dónde podrá visualizar los punto de reciclaje de ese material.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="linea-divisoria my-5 pb-3">SCANNER</div>
+
+<div class="container mt-5">
+    <div class="row ">
+        <div class="col-md-6  text-center  divcontenedorVideo mb-5">
+            <div class="ajuste-tamaño2">
+                <div class="text-center"id="contenedorVideo"></div>
+            </div>
+        </div>
+        <div id="avatarImage" class="col-md-6  text-center  mb-5">
+             <div id="adjuntar-difuminado" class="ajuste-tamaño bordes-adjun text-center">
+                <img id="imagenn" src="/imagenes/adjun2.png">
+             </div>
+        </div>
+            <div class="col-md-3 margin-auto mb-2">
+                <a href="/scanner/scanner">
+                    <button class="btn col-md-12 gris-blanco "  id="cambiaravideo">
+                        <span class="fas fa-arrow-circle-left"></span>
+                        Video en tiempo real
+                    </button>
+                </a>
+            </div>
+            <div class="col-md-3 margin-auto mb-2">
+                <button disabled class="btn col-md-12 gris-blanco"  id="cambiaraimagen">Adjuntar imagen <span class="fas fa-arrow-circle-right"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="row centrarvideo mt-4 text-center">
+        <div class="col-md-12 mb-3 text-center">
+            <span class="col-md-12 text-center" id="result"></span>
+            <span class="col-md-12 text-center"  id="coincidencia"></span>
+        </div>
+    </div>
+    <div class="row centrarbotones mb-5">
+            <div class="col-md-4 col-12 mb-2">
+                <button class="btn col-md-12 btn-primary" id="botonPredecir">Iniciar</button>
+            </div>
+            <div class="col-md-4 col-12 mb-2">
+                <button class="btn col-md-12 btn-primary" onclick="masInfo()" id="info">Mas Información</button>
+            </div>
+            <div class="col-md-4 col-12 mb-2">
+                <button class="btn col-md-12 btn-primary mb-5" onclick="verMapa()" id="mapita">Ver Mapa</button>
+            </div>
+    </div>
+<input onchange="previewFile()" type="file" hidden name="avatarInput" id="avatarInput" />
+<footer th:replace="fragments/footer"></footer>
+<script th:inline="javascript">
+    let video;
+    let featureExtractor;
+    let clasificador;
+    let info;
+    let cate;
+    let coincidencia;
+    function setup() {
+        noCanvas();
+        clasificador = ml5.imageClassifier('MobileNet',modelReady);
+        clasificador = ml5.imageClassifier('https://cdn.jsdelivr.net/gh/Nicolasemanuelmorales/prueba/mmvvpp2.json',modelReady);
+        configuraBotones();
+    }
+    function configuraBotones() {
+
+        let botonPredecir = select('#botonPredecir');
+        botonPredecir.mousePressed(function () {
+            if(document.getElementById('imagenn').src === window.location.protocol + "//" + window.location.host + "/" + 'imagenes/adjun.png'){
+                select("#result").html("Agregue una imagen por favor.");
+            }else {
+            clasificador.predict(document.getElementById('imagenn'), function(err, results) {
+                muestraResultado(err,results)
+            });}
+        });
+    }
+
+    function muestraResultado(err, res) {
+        /*<![CDATA[*/
+        var myVariable= /*[[${categorias}]]*/ 'value';
+        /*]]>*/
+        let auxi =0;
+        let resu;
+        for (var x=0;x < res.length;x++){
+            if(res[x].confidence > auxi){
+                auxi=res[x].confidence;
+                resu=res[x];
+            }
+        }
+            myVariable.forEach(function (value) {
+                if (resu.label == value.imagen){
+                    cate = value.categoria.nombre;
+                    coincidencia ='Coincidencia: %'+ (resu.confidence.toFixed(2) * 100);
+                    info=value.categoria;
+                    select("#result").html(cate);
+                    select("#coincidencia").html(coincidencia);
+                }
+            });
+
+    }
+    function modelReady() {
+        //clasificador.load('https://cdn.jsdelivr.net/gh/Nicolasemanuelmorales/prueba/mmvvpp2.json');
+    }
+
+    function masInfo() {
+        if(info == null){}
+        else{window.location.replace("/categoria/"+info.id);}
+    }
+    function verMapa() {
+        if(info == null){}
+        else{window.location.replace("/map?categories=" + info.nombre.toUpperCase());}
+    }
+
+    $(document).ready(function () {
+        var $avatarInput, $avatarImage;
+        $(function () {
+            $avatarInput = $('#avatarInput');
+            $avatarImage = $('#avatarImage');
+            $avatarImage.on('click', function () {
+                $avatarInput.click();
+            })
+        })
+    });
+
+    function previewFile() {
+        const clasedifuminado = document.querySelector('#adjuntar-difuminado');
+        const preview = document.querySelector('#imagenn');
+        const di = document.querySelector('#avatarInput');
+        const file = document.querySelector('input[type=file]').files[0];
+        const reader = new FileReader();
+
+        reader.addEventListener("load", function () {
+            clasedifuminado.style.background="#000";
+            preview.src = reader.result;
+
+        }, false);
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+<script>
+    $(".mostrar-pasos").hide();
+    $(".ocultar-pasos").click(function () {
+        $(".ocultar-recy").hide(1000);
+        $(".ocultar-pasos").hide();
+        $(".mostrar-pasos").show();
+    });
+    $(".mostrar-pasos").click(function () {
+        $(".ocultar-recy").show(1000);
+        $(".mostrar-pasos").hide();
+        $(".ocultar-pasos").show();
+    });
+</script>
+</body>
+</html>
